@@ -171,7 +171,6 @@ var VESConsole = {
 
 IDEAS:
 + post edited highlighter
-+ keyboard nav
 + ...
 
 */
@@ -202,6 +201,27 @@ modules['VESDebugger'] = {
     },
 };
 
+modules['KeyboardNavigator'] = {
+    moduid: 'KeyboardNavigator',
+    moduleName: 'Keyboard Navigator',
+    description: 'Use your keyboard to Voat.',
+    options: {
+
+    },
+    isEnabled: function() {
+        return VESConsole.getModulePrefs(this.moduid);
+    },
+    //include:
+    //exclude:
+    isMatchURL: function() {
+        return VESUtils.isMatchURL(this.moduid);
+    },
+    go: function() {
+        if ((this.isEnabled() && (this.isMatchURL)) {
+
+        }
+    },
+};
 
 (function(u) {
     // load all the VES modules
