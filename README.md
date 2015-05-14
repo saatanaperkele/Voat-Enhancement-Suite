@@ -14,3 +14,7 @@ A few things:
 Regardless of VES performance, I hope you enjoy the functionalities VES will provide.
 
 Thank you!
+
+## Contributing
+
+Before you file an issue or submit a pull request, please read the CONTRIBUTING.md file. Thank you for helping to improve VES!
