@@ -154,6 +154,19 @@ var VESUtils = {
 
 };
 
+var VESConsole = {
+    getModulePrefs: function(moduid) {
+
+    },
+    setModulePrefs: function(prefs) {
+
+    },
+    // create console
+    create: function() {
+
+    },
+};
+
 /* TODO - MODULE API
 
 IDEAS:
