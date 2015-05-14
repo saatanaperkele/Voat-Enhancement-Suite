@@ -12,13 +12,20 @@ The core of VES is a set of utilities and load scripts set in place to create th
 
 To do so, the core must be written carefully to allow this. Streamlining the code must be done to ensure that VES can run across platforms on systems with unique drawbacks (memory limitations, processing power, &c). Please keep usability in mind when creating modules.
 
+## Filing Issues
+
++ To ensure issues are approached individually and quickly, please use issue labels.
+  * To suggest a new feature *that you will not be adding*, please label your issue with the `suggestion` label.
+  * To note and features that *are being added in a pull request*, please label your issue with the `enhancement` label.
++ If there is an issue related to yours, please reference the issue in the description.
+
 ## Getting Started
 
 + Make sure you have a GitHub account,
 + Submit a ticket if your issue is not a duplicate.
-  * If your issue is a bug, please clearly outline the steps to reproduce it. This may include device, browser, version, or other information.
+  * If your issue is a bug, please clearly outline the steps to reproduce it. This may include device, browser, VES version, or other information.
   * Please be open to communication! The more communication that can take place the faster the issue will be fixed.
-+ Fork the repository.
++ Fork the repository if you are capabable and willing to attempt to fix the issue.
 
 ## Making Changes
 
