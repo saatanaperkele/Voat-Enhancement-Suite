@@ -161,25 +161,33 @@ IDEAS:
 + keyboard nav
 + ...
 
-TEMPLATE:
-modules['moduleName'] = {
-    moduid: 'moduleName',
-    moduleName: 'Module Name',
-    description: 'Does a cool thing for Voat.co!',
-    go: function() {...},
-    ....
-};
-
 */
 
 modules['VESDebugger'] = {
     moduid: 'VESDebugger',
     moduleName: 'VES Debugger',
     description: 'VES analytics for debugging.',
-    go: function() {
+    options: {
 
     },
-}
+    isEnabled: function() {
+        return VESConsole.getModulePrefs(this.moduid);
+    },
+    //include:
+    //exclude:
+    isMatchURL: function() {
+        return VESUtils.isMatchURL(this.moduid);
+    },
+    go: function() {
+        if ((this.isEnabled) && (this.isMatchURL)) {
+            // do some basic logging.
+            console.log('done: ' + Date());
+            console.log('isVoat: ' + VESUtils.isVoat());
+            console.log('pageType: ' + VESUtils.pageType());
+            console.log('subverse: ' + VESUtils.currentSubverse());
+        }
+    },
+};
 
 
 (function(u) {
@@ -190,11 +198,6 @@ modules['VESDebugger'] = {
     }
     // inject all VES modules' CSS
     injectCSS(VESUtils.css);
-    // do some super basic logging
-    console.log('done: ' + Date());
-    console.log('isVoat: ' + VESUtils.isVoat());
-    console.log('pageType: ' + VESUtils.pageType());
-    console.log('subverse: ' + VESUtils.currentSubverse());
 
 })();
     
