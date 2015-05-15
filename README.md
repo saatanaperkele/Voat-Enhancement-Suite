@@ -18,11 +18,9 @@ Thank you!
 
 ## Contributing
 
-*Ideas for VES are always welcome!* However, before you file an issue or submit a pull request, please read the CONTRIBUTING.md file. Thank you for helping to improve VES!
+Ideas for VES are always welcome! However, before you report a bug or submit a pull request, please read the CONTRIBUTING.md file. Thank you for helping to improve VES!
 
 
 ## [Download][dl]
-
-*As a userscript, VES may be implementable across many platforms and browsers. Officially supported browsers are Chrome and Firefox.*
 
 [dl]: https://github.com/travis-g/Voat-Enhancement-Suite/raw/master/voat-enhancement-suite.user.js
