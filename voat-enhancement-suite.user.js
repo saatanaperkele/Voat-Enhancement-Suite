@@ -10,7 +10,7 @@
 // @exclude
 // @match
 // @grant       none
-// @require     http://code.jquery.com/jquery-latest.js
+// @require
 // @noframes
 // @icon
 // ==/UserScript==
