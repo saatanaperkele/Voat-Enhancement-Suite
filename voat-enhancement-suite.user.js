@@ -200,6 +200,7 @@ IDEAS:
 + post edited highlighter
 + user highlighter
 + username hider
++ keyboard navigator
 */
 
 modules['VESDebugger'] = {
@@ -225,29 +226,6 @@ modules['VESDebugger'] = {
             console.log('isVoat: ' + VESUtils.isVoat());
             console.log('pageType: ' + VESUtils.pageType());
             console.log('subverse: ' + VESUtils.currentSubverse());
-        }
-    },
-};
-
-modules['KeyboardNavigator'] = {
-    moduid: 'KeyboardNavigator',
-    moduleName: 'Keyboard Navigator',
-    description: 'Use your keyboard to Voat.',
-    options: {
-
-    },
-    isEnabled: function() {
-        return VESConsole.getModulePrefs(this.moduid);
-    },
-    // include: [
-    //     'all'
-    // ],
-    isMatchURL: function() {
-        return VESUtils.isMatchURL(this.moduid);
-    },
-    go: function() {
-        if ((this.isEnabled() && this.isMatchURL())) {
-
         }
     },
 };
