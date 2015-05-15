@@ -12,6 +12,8 @@
 // @grant       none
 // @require
 // @noframes
+// @downloadURL https://github.com/travis-g/Voat-Enhancement-Suite/raw/master/voat-enhancement-suite.user.js
+// @updateURL   https://github.com/travis-g/Voat-Enhancement-Suite/raw/master/voat-enhancement-suite.user.js
 // @icon
 // ==/UserScript==
 
