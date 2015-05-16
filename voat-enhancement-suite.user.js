@@ -74,7 +74,6 @@ function injectCSS(css) {
     }
 };
 
-
 var modules = new Array();
 
 // common utils for modules
@@ -115,9 +114,9 @@ var VESUtils = {
         includes = typeof includes === 'undefined' ? [] : [].concat(includes);
         excludes = typeof excludes === 'undefined' ? [] : [].concat(excludes);
 
-        var excludesPageType = excludes.length && (RESUtils.isPageType.apply(RESUtils, excludes) || RESUtils.matchesPageRegex.apply(RESUtils, excludes));
+        var excludesPageType = excludes.length && (VESUtils.isPageType.apply(VESUtils, excludes) || VESUtils.matchesPageRegex.apply(VESUtils, excludes));
         if (!excludesPageType) {
-            var includesPageType = !includes.length || RESUtils.isPageType.apply(RESUtils, includes) || RESUtils.matchesPageRegex.apply(RESUtils, includes);
+            var includesPageType = !includes.length || VESUtils.isPageType.apply(VESUtils, includes) || VESUtils.matchesPageRegex.apply(VESUtils, includes);
             return includesPageType;
         }
     },
@@ -142,10 +141,33 @@ var VESUtils = {
         return this.pageTypeSaved;
     },
     isPageType: function(/*type1,type2*/) {
-        var page = RESUtils.pageType();
+        var page = VESUtils.pageType();
         return Array.prototype.slice.call(arguments).some(function(e) {
             return (e === 'all') || (e === thisPage);
         });
+    },
+    getOptions: function(moduid) {
+        console.log("getting options for " + moduid);
+        var thisOptions = localStorage.getItem('VESOptions.' + moduid);
+        console.log("thisOptions = " + thisOptions);
+        var currentTime = new Date();
+        if ((thisOptions) && (thisOptions != 'undefined') && (thisOptions != null)) {
+            storedOptions = JSON.parse(thisOptions);
+            codeOptions = modules[moduid].options;
+            for (attrname in codeOptions) {
+                if (typeof(storedOptions[attrname]) == 'undefined') {
+                    storedOptions[attrname] = codeOptions[attrname];
+                }
+            }
+            modules[moduid].options = storedOptions;
+            localStorage.setItem('VESOptions.' + moduid, JSON.stringify(modules[moduid].options));
+        } else {
+            console.log('getOptions: setting defaults');
+            // nothing's been stored, so set defaults:
+            localStorage.setItem('VESOptions.' + moduid, JSON.stringify(modules[moduid].options));
+        }
+        console.log('getOptions: returning options for ' + moduid);
+        return modules[moduid].options;
     },
     currentSubverse: function(check) {
         if (typeof this.curSub === 'undefined') {
@@ -206,11 +228,65 @@ var VESUtils = {
 };
 
 var VESConsole = {
+    resetModulePrefs: function() {
+        console.log("resetModulePrefs(): resetting module prefs");
+        prefs = {
+            'debug': true,
+            'voatingNeverEnds': true,
+            'singleClick': true,
+        };
+        this.setModulePrefs(prefs);
+        return prefs;
+    },
+    getAllModulePrefs: function() {
+        console.log('entering getAllModulePrefs()...')
+        if (localStorage.getItem('VES.modulePrefs') != null) {
+            var storedPrefs = JSON.parse(localStorage.getItem('VES.modulePrefs'));
+        } else {
+            console.log('getAllModulePrefs: resetting stored prefs');
+            // first time VES has been run
+            storedPrefs = this.resetModulePrefs();
+        }
+        if (storedPrefs == null) {
+            storedPrefs = {};
+        }
+        // create a JSON object to return all prefs
+        console.log('getAllModulePrefs: creating prefs object');
+        var prefs = {};
+        for (i in modules) {
+            if (storedPrefs[i]) {
+                prefs[i] = storedPrefs[i];
+            } else if (storedPrefs[i] == null) {
+                // new module! ...or no preferences.
+                prefs[i] = true;
+            } else {
+                prefs[i] = false;
+            }
+        }
+        if ((typeof(prefs) != 'undefined') && (prefs != 'undefined') && (prefs)) {
+            return prefs;
+        }
+    },
     getModulePrefs: function(moduid) {
-
+        console.log('entered getModulePrefs for ' + moduid)
+        if (moduid) {
+            console.log('running getModulePrefs for ' + moduid);
+            var prefs = this.getAllModulePrefs();
+            console.log('getModulePrefs: returning prefs for ' + moduid);
+            return prefs[moduid];
+        } else {
+            alert('no module name specified for getModulePrefs');
+        }
     },
     setModulePrefs: function(prefs) {
-
+        console.log("setting VES.modulePrefs...")
+        if (prefs != null) {
+            localStorage.setItem('VES.modulePrefs', JSON.stringify(prefs));
+            //this.drawModulesPanel(); // create settings panel for modules
+            return prefs;
+        } else {
+            alert('error - no prefs specified');
+        }
     },
     // create console
     create: function() {
@@ -226,36 +302,39 @@ IDEAS:
 + keyboard navigator
 */
 
-modules['VESDebugger'] = {
-    moduid: 'VESDebugger',
+modules['debug'] = {
+    moduid: 'debug',
     moduleName: 'VES Debugger',
     description: 'VES analytics for debugging.',
     options: {
 
     },
     isEnabled: function() {
+        console.log('debug.isEnabled(): ' + VESConsole.getModulePrefs(this.moduid));
         return VESConsole.getModulePrefs(this.moduid);
     },
-    // include: [
-    //     'all'
-    // ],
+    include: [
+        'all'
+    ],
     isMatchURL: function() {
+        console.log('debug.isMatchURL(): ' + VESUtils.isMatchURL(this.moduid));
         return VESUtils.isMatchURL(this.moduid);
     },
     go: function() {
-        if ((this.isMatchURL())) {  // force run
-        //if ((this.isEnabled()) && (this.isMatchURL())) {
+        //if ((this.isMatchURL())) {  // force run
+        if ((this.isEnabled()) && (this.isMatchURL())) {
             // do some basic logging.
             console.log('done: ' + Date());
             console.log('isVoat: ' + VESUtils.isVoat());
+            console.log('loggedInUser: ' + VESUtils.loggedInUser());
             console.log('pageType: ' + VESUtils.pageType());
             console.log('subverse: ' + VESUtils.currentSubverse());
         }
     },
 };
 
-modules['VoatingNeverEnds'] = {
-    moduid: 'VoatingNeverEnds',
+modules['voatingNeverEnds'] = {
+    moduid: 'voatingNeverEnds',
     moduleName: 'Voating Never Ends',
     description: 'Load the next page of Voat automatically.',
     options: {
@@ -282,7 +361,7 @@ modules['VoatingNeverEnds'] = {
     },
     go: function() {
         if ((this.isEnabled()) && (this.isMatchURL())) {
-            RESUtils.addCSS();
+            VESUtils.addCSS();
             // getNextPrevLinks();
             // loadNewPage();
         }
@@ -336,7 +415,6 @@ modules['singleClick'] = {
         //if ((this.isMatchURL())) {    // force run
         if ((this.isEnabled()) && (this.isMatchURL())) {
             this.applyLinks();
-            // will need a watcher for .sitetable for when VoatingNeverEnds loads next page
         }
     },
     applyLinks: function(ele) {
