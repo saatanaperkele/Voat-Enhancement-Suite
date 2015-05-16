@@ -122,26 +122,28 @@ var VESUtils = {
         }
     },
     pageType: function() {
-        // TODO - add code to prevent multiple runs of function for each module
-        // TODO - this.currentPageType
-        var pageType = '';
-        var currURL = location.href;
-        if (VESUtils.regexes.user.test(currURL)) {
-            pageType = 'user';
-        } else if (VESUtils.regexes.inbox.test(currURL)) {
-            pageType = 'inbox';
-        } else if (VESUtils.regexes.commentReplies.test(currURL)) {
-            pageType = 'commentreplies';
-        } else if (VESUtils.regexes.postReplies.test(currURL)) {
-            pageType = 'postreplies';
-        } else if (VESUtils.regexes.comments.test(currURL)) {
-            pageType = 'comments';
-        } else if (VESUtils.regexes.subverse.test(currURL)) {
-            pageType = 'subverse';
-        } else {
-            pageType = 'linklist';
+
+        if (typeof this.pageTypeSaved === 'undefined') {
+            var pageType = '';
+            var currURL = location.href;
+            if (VESUtils.regexes.user.test(currURL)) {
+                pageType = 'user';
+            } else if (VESUtils.regexes.inbox.test(currURL)) {
+                pageType = 'inbox';
+            } else if (VESUtils.regexes.commentReplies.test(currURL)) {
+                pageType = 'commentreplies';
+            } else if (VESUtils.regexes.postReplies.test(currURL)) {
+                pageType = 'postreplies';
+            } else if (VESUtils.regexes.comments.test(currURL)) {
+                pageType = 'comments';
+            } else if (VESUtils.regexes.subverse.test(currURL)) {
+                pageType = 'subverse';
+            } else {
+                pageType = 'linklist';
+            }
+            this.pageTypeSaved = pageType;
         }
-        return pageType + " -- " + currURL;
+        return this.pageTypeSaved;
     },
     isPageType: function(/*type1,type2*/) {
         var page = RESUtils.pageType();
