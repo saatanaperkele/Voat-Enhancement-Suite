@@ -20,7 +20,7 @@ Thank you!
 
 Ideas for VES are always welcome! However, before you report a bug or submit a pull request, please read the CONTRIBUTING.md file. Thank you for helping to improve VES!
 
-[![Code Climate](https://codeclimate.com/github/travis-g/Voat-Enhancement-Suite/badges/gpa.svg)](https://codeclimate.com/github/travis-g/Voat-Enhancement-Suite)
+<!--[![Code Climate](https://codeclimate.com/github/travis-g/Voat-Enhancement-Suite/badges/gpa.svg)](https://codeclimate.com/github/travis-g/Voat-Enhancement-Suite)-->
 
 ## [Download][dl]
 
