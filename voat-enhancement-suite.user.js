@@ -147,9 +147,9 @@ var VESUtils = {
         });
     },
     getOptions: function(moduid) {
-        console.log("getting options for " + moduid);
+        //console.log("getting options for " + moduid);
         var thisOptions = localStorage.getItem('VESOptions.' + moduid);
-        console.log("thisOptions = " + thisOptions);
+        //console.log("thisOptions = " + thisOptions);
         var currentTime = new Date();
         if ((thisOptions) && (thisOptions != 'undefined') && (thisOptions != null)) {
             storedOptions = JSON.parse(thisOptions);
@@ -162,11 +162,11 @@ var VESUtils = {
             modules[moduid].options = storedOptions;
             localStorage.setItem('VESOptions.' + moduid, JSON.stringify(modules[moduid].options));
         } else {
-            console.log('getOptions: setting defaults');
+            //console.log('getOptions: setting defaults');
             // nothing's been stored, so set defaults:
             localStorage.setItem('VESOptions.' + moduid, JSON.stringify(modules[moduid].options));
         }
-        console.log('getOptions: returning options for ' + moduid);
+        //console.log('getOptions: returning options for ' + moduid);
         return modules[moduid].options;
     },
     currentSubverse: function(check) {
@@ -225,25 +225,27 @@ var VESUtils = {
         evt.initMouseEvent('mousedown', true, true, window.wrappedJSObject, 0, 1, 1, 1, 1, false, false, false, false, button, null);
         obj.dispatchEvent(evt);
     },
+
+    runtime: {/* specified later */},
 };
 
 var VESConsole = {
     resetModulePrefs: function() {
-        console.log("resetModulePrefs(): resetting module prefs");
+        //console.log("resetModulePrefs(): resetting module prefs");
         prefs = {
             'debug': true,
             'voatingNeverEnds': true,
-            'singleClick': true,
+            'singleClick': false,
         };
         this.setModulePrefs(prefs);
         return prefs;
     },
     getAllModulePrefs: function() {
-        console.log('entering getAllModulePrefs()...')
+        //console.log('entering getAllModulePrefs()...')
         if (localStorage.getItem('VES.modulePrefs') != null) {
             var storedPrefs = JSON.parse(localStorage.getItem('VES.modulePrefs'));
         } else {
-            console.log('getAllModulePrefs: resetting stored prefs');
+            //console.log('getAllModulePrefs: resetting stored prefs');
             // first time VES has been run
             storedPrefs = this.resetModulePrefs();
         }
@@ -251,7 +253,7 @@ var VESConsole = {
             storedPrefs = {};
         }
         // create a JSON object to return all prefs
-        console.log('getAllModulePrefs: creating prefs object');
+        //console.log('getAllModulePrefs: creating prefs object');
         var prefs = {};
         for (i in modules) {
             if (storedPrefs[i]) {
@@ -268,18 +270,18 @@ var VESConsole = {
         }
     },
     getModulePrefs: function(moduid) {
-        console.log('entered getModulePrefs for ' + moduid)
+        //console.log('entered getModulePrefs for ' + moduid)
         if (moduid) {
-            console.log('running getModulePrefs for ' + moduid);
+            //console.log('running getModulePrefs for ' + moduid);
             var prefs = this.getAllModulePrefs();
-            console.log('getModulePrefs: returning prefs for ' + moduid);
+            //console.log('getModulePrefs: returning prefs for ' + moduid);
             return prefs[moduid];
         } else {
             alert('no module name specified for getModulePrefs');
         }
     },
     setModulePrefs: function(prefs) {
-        console.log("setting VES.modulePrefs...")
+        //console.log("setting VES.modulePrefs...")
         if (prefs != null) {
             localStorage.setItem('VES.modulePrefs', JSON.stringify(prefs));
             //this.drawModulesPanel(); // create settings panel for modules
@@ -293,6 +295,9 @@ var VESConsole = {
 
     },
 };
+
+VESUtils.addCSS('.link .flat-list li span { font-weight: bold }');  // singleClick module
+
 
 /* MODULES
 IDEAS:
@@ -310,14 +315,14 @@ modules['debug'] = {
 
     },
     isEnabled: function() {
-        console.log('debug.isEnabled(): ' + VESConsole.getModulePrefs(this.moduid));
+        //console.log('debug.isEnabled(): ' + VESConsole.getModulePrefs(this.moduid));
         return VESConsole.getModulePrefs(this.moduid);
     },
     include: [
         'all'
     ],
     isMatchURL: function() {
-        console.log('debug.isMatchURL(): ' + VESUtils.isMatchURL(this.moduid));
+        //console.log('debug.isMatchURL(): ' + VESUtils.isMatchURL(this.moduid));
         return VESUtils.isMatchURL(this.moduid);
     },
     go: function() {
@@ -397,8 +402,23 @@ modules['voatingNeverEnds'] = {
 modules['singleClick'] = {
     moduid: 'singleClick',
     moduleName: 'Single Click',
-    description: 'Adds a [l+c] link to open both the page\'s link and comments page in new tabs at once.',
-    options: {},
+    description: 'Adds an [l+c] link that opens a link and the comments page in new tabs for you in one click.',
+    options: {
+        openOrder: {
+            type: 'enum',
+            values: [
+                { name: 'open comments then link', value: 'commentsfirst' },
+                { name: 'open link then comments', value: 'linkfirst' }
+            ],
+            value: 'commentsfirst',
+            description: 'What order to open the link/comments in.'
+        },
+        hideLEC: {
+            type: 'boolean',
+            value: true,
+            description: 'Hide the [l=c] where the link is the same as the comments page'
+        }
+    },
     isEnabled: function() {
         return VESConsole.getModulePrefs(this.moduid);
     },
@@ -415,6 +435,13 @@ modules['singleClick'] = {
         //if ((this.isMatchURL())) {    // force run
         if ((this.isEnabled()) && (this.isMatchURL())) {
             this.applyLinks();
+            // watch for changes to .sitetable, then reapply
+            //VESUtils.watchForElement('sitetable', modules['singleClick'].applyLinks);
+            document.body.addEventListener('DOMNodeInserted', function(event) {
+                if ((event.target.tagName == 'DIV') && (event.target.getAttribute('class') == 'sitetable')) {
+                    modules['singleClick'].applyLinks();
+                }
+            }, true);
         }
     },
     applyLinks: function(ele) {
@@ -426,13 +453,21 @@ modules['singleClick'] = {
                 this.titleLA = entries[i].querySelector('A.title');
                 if (this.titleLA !== null) {
                     var thisLink = this.titleLA.href;
+                    // check if it's a relative path (no http://)
+                    if (!(thisLink.match(/^http/i))) {
+                        thisLink = 'http://' + document.domain + thisLink;
+                    }
                     //console.log("thisLink -- " + thisLink);
                     var thisComments = (thisComments = entries[i].querySelector('.comments')) && thisComments.href;
                     //console.log("thisComments -- " + thisComments);
                     var thisUL = entries[i].querySelector('ul.flat-list');
                     var singleClickLI = document.createElement('li');
                     var singleClickLink = document.createElement('span');
-                    singleClickLink.innerHTML = '[l+c]';
+                    if (thisLink != thisComments) {
+                        singleClickLink.innerHTML = '[l+c]';
+                    } else if (!(this.options.hideLEC.value)) {
+                        singleClickLink.innerHTML = '[l=c]';
+                    }
                     singleClickLI.appendChild(singleClickLink);
                     thisUL.appendChild(singleClickLI);
                     singleClickLink.addEventListener('click', function(e) {
