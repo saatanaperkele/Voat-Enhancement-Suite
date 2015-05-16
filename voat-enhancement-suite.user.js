@@ -179,6 +179,19 @@ var BrowserDetect = {
 };
 BrowserDetect.init();
 
+// Get firebug to show console.log
+if (typeof(unsafeWindow) != 'undefined') {
+    if ((typeof(unsafeWindow.console) != 'undefined') && (typeof(self.on) != 'function')) {
+        console = unsafeWindow.console;
+    } else if (typeof(console) == 'undefined') {
+        console = {
+            log: function(str) {
+                return false;
+            }
+        };
+    }
+}
+
 // for applying VESUtils.css
 function injectCSS(css) {
     // make a new <style/> tag
