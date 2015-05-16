@@ -85,14 +85,12 @@ var VESUtils = {
     },
     regexes: {
         all: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\//i,
-        inbox: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/messaging\/inbox\//i,
-        commentReplies: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/messaging\/commentreplies\//i,
-        postReplies: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/messaging\/postreplies\//i,
-        comments: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/v\/([\w\.\+]+)\/comments\/([\d]+)+/i,
+        inbox: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/messaging\/([\w\.\+]+)\//i,
+        comments: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/v\/([\w\.\+]+)\/comments\/([\w\.\+]+)/i,
         user: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/user\/([\w\.\+]+)/i,
+        //search:
         //submit: 
         subverse: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/v\/([\w\.\+]+)/i,
-        subverseListing: /^https?:\/\/voat.co\/subverses(\?page=\d+)?/i,
         //subversePostListing:
     },
     isVoat: function() {
@@ -136,16 +134,12 @@ var VESUtils = {
             pageType = 'commentreplies';
         } else if (VESUtils.regexes.postReplies.test(currURL)) {
             pageType = 'postreplies';
-        } else if (VESUtils.regexes.user.test(currURL)) {
-            pageType = 'user';
         } else if (VESUtils.regexes.comments.test(currURL)) {
             pageType = 'comments';
         } else if (VESUtils.regexes.subverse.test(currURL)) {
             pageType = 'subverse';
-        } else if (VESUtils.regexes.subverseListing.test(currURL)) {
-            pageType = 'subverses';
-        } else if (VESUtils.regexes.all.test(currURL)) {
-            pageType = 'all';
+        } else {
+            pageType = 'linklist';
         }
         return pageType + " -- " + currURL;
     },
@@ -181,7 +175,24 @@ var VESUtils = {
         return '-webkit-' + css + ';' + '-o-' + css + ';' + '-moz-' + css + ';'
             + '-ms-' + css + ';' + css + ';';
     },
-
+    loggedInUser: function(tryingEarly) {
+        if (typeof this.loggedInUserCached === 'undefined') {
+            var userLink = document.querySelector('#header-account > .logged-in > span.user > a');
+            if ((userLink != null)) {
+                this.loggedInUserCached = userLink.textContent;
+                // does this element exist?
+                //this.loggedInUserHashCached = document.querySelector('[name=uh]').value;
+            } else {
+                if (tryingEarly) {
+                    delete this.loggedInUserCached;
+                    //delete this.loggedInUserHashCached;
+                } else {
+                    this.loggedInUserCached = null;
+                }
+            }
+        }
+        return this.loggedInUserCached;
+    }
 };
 
 var VESConsole = {
