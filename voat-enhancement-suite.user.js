@@ -409,9 +409,13 @@ var VESUtils = {
             window.open(url);
         }
     },
-
-    runtime: {/* specified later */},
 };
+
+singleClickCSS('.link .flat-list li span { font-weight: bold }');
+voatingNeverEndsCSS('');
+
+VESUtils.addCSS(singleClickCSS);
+VESUtils.addCSS(voatingNeverEndsCSS);
 
 var VESConsole = {
     resetModulePrefs: function() {
@@ -479,9 +483,6 @@ var VESConsole = {
 
     },
 };
-
-VESUtils.addCSS('.link .flat-list li span { font-weight: bold }');  // singleClick module
-
 
 /* MODULES
 IDEAS:
