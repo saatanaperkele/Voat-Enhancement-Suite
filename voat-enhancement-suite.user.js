@@ -193,6 +193,18 @@ var VESUtils = {
         }
         return this.loggedInUserCached;
     }
+    click: function(obj, btn) {
+        var evt = document.createEvent('MouseEvents');
+        btn = btn || 0;
+        evt.initMouseEvent('click', true, true, window.wrappedJSObject, 0, 1, 1, 1, 1, false, false, false, false, button, null);
+        obj.dispatchEvent(evt);
+    },
+    mousedown: function(obj, btn) {
+        var evt = document.createEvent('MouseEvents');
+        btn = btn || 0;
+        evt.initMouseEvent('mousedown', true, true, window.wrappedJSObject, 0, 1, 1, 1, 1, false, false, false, false, button, null);
+        obj.dispatchEvent(evt);
+    },
 };
 
 var VESConsole = {
