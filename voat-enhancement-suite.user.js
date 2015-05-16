@@ -250,18 +250,20 @@ modules['VoatingNeverEnds'] = {
     isEnabled: function() {
         return VESConsole.getModulePrefs(this.moduid);
     },
-    // include: [
-    //     'all'
-    // ],
-    // exclude: [
-    //     'comments'
-    // ],
+    include: [
+        'all'
+    ],
+    exclude: [
+        'comments'
+    ],
     isMatchURL: function() {
         return VESUtils.isMatchURL(this.moduid);
     },
     go: function() {
         if ((this.isEnabled()) && (this.isMatchURL())) {
-
+            RESUtils.addCSS();
+            // getNextPrevLinks();
+            // loadNewPage();
         }
     },
     getNextPrevLinks: function(e) {
@@ -274,7 +276,24 @@ modules['VoatingNeverEnds'] = {
         if (!(links.next || links.prev)) links = false;
         return links;
     },
+    loadNewPage: function() {
+        // fromBackButton
+        if (this.isLoading != true) {
+            // change loading indicator
+            this.isLoading = true;
+            GM_xmlhttpRequest({
+                method: "GET",
+                //url: '',
+                onload: function(response) {
+                    // crazy http response processing/injection
+                }
+            });
+        } else {
+            console.log("load new page ignored");
+        }
+    },
 };
+
 modules['singleClick'] = {
     moduid: 'singleClick',
     moduleName: 'Single Click',
