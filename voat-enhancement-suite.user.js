@@ -299,6 +299,14 @@ var VESUtils = {
         //console.log('getOptions: returning options for ' + moduid);
         return modules[moduid].options;
     },
+    getURLParams: function() {
+        var result = {}, queryString = location.search.substring(1),
+            re = /([^&=]+)=([^&]*)/g, m;
+        while (m = re.exec(queryString)) {
+            result[decodeURLComponent(m[1])] = decodeURLComponent(m[2]);
+        }
+        return result;
+    },
     currentSubverse: function(check) {
         if (typeof this.curSub === 'undefined') {
             var match = location.href.match(VESUtils.regexes.subverse);
@@ -315,6 +323,9 @@ var VESUtils = {
             return this.curSub;
         }
     },
+    currentUserProfile: function() {
+        // TODO
+    }
     stripHTML: function(str) {
         var regex = /<\/?[^>]+>/gi;
         str = str.replace(regex, '');
@@ -343,6 +354,9 @@ var VESUtils = {
         }
         return this.loggedInUserCached;
     },
+    loggedInUserInfo: function(callback) {
+        // TODO
+    },
     click: function(obj, btn) {
         var evt = document.createEvent('MouseEvents');
         btn = btn || 0;
@@ -354,6 +368,46 @@ var VESUtils = {
         btn = btn || 0;
         evt.initMouseEvent('mousedown', true, true, window.wrappedJSObject, 0, 1, 1, 1, 1, false, false, false, false, button, null);
         obj.dispatchEvent(evt);
+    },
+    elementInViewport: function(obj) {
+        // TODO
+    },
+    elementUnderMouse: function(obj) {
+        // TODO
+    },
+    isEmpty: function(obj) {
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop)) return false;
+        }
+        return true;
+    },
+    openLinkInNewTab: function(url, focus) {
+        if (typeof(chrome) != 'undefined') {
+            thisJSON = {
+                requestType: 'openLinkInNewTab',
+                linkURL: url,
+                button: focus
+            }
+            chrome.runtime.sendMessage(thisJSON, function(response) {
+                return true;
+            });
+        } else if (typeof(safari) != 'undefined') {
+            thisJSON = {
+                requestType: 'openLinkInNewTab',
+                linkURL: url,
+                button: focus
+            }
+            safari.self.tab.dispatchMessage("openLinkInNewTab", thisJSON);
+        } else if (typeof(opera) != 'undefined') {
+            thisJSON = {
+                requestType: 'openLinkInNewTab',
+                linkURL: url,
+                button: focus
+            }
+            self.postMessage(thisJSON);
+        } else {
+            window.open(url);
+        }
     },
 
     runtime: {/* specified later */},
