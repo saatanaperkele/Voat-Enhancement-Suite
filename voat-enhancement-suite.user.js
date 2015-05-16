@@ -325,7 +325,7 @@ var VESUtils = {
     },
     currentUserProfile: function() {
         // TODO
-    }
+    },
     stripHTML: function(str) {
         var regex = /<\/?[^>]+>/gi;
         str = str.replace(regex, '');
