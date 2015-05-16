@@ -145,7 +145,7 @@ var VESUtils = {
         } else if (VESUtils.regexes.subverseListing.test(currURL)) {
             pageType = 'subverses';
         } else if (VESUtils.regexes.all.test(currURL)) {
-            pageType = 'front';
+            pageType = 'all';
         }
         return pageType + " -- " + currURL;
     },
@@ -222,7 +222,8 @@ modules['VESDebugger'] = {
         return VESUtils.isMatchURL(this.moduid);
     },
     go: function() {
-        if ((this.isEnabled) && (this.isMatchURL())) {
+        if ((this.isMatchURL())) {  // force run
+        //if ((this.isEnabled()) && (this.isMatchURL())) {
             // do some basic logging.
             console.log('done: ' + Date());
             console.log('isVoat: ' + VESUtils.isVoat());
@@ -259,7 +260,7 @@ modules['VoatingNeverEnds'] = {
         return VESUtils.isMatchURL(this.moduid);
     },
     go: function() {
-        if ((this.isEnabled() && this.isMatchURL())) {
+        if ((this.isEnabled()) && (this.isMatchURL())) {
 
         }
     },
@@ -274,6 +275,93 @@ modules['VoatingNeverEnds'] = {
         return links;
     },
 };
+modules['singleClick'] = {
+    moduid: 'singleClick',
+    moduleName: 'Single Click',
+    description: 'Adds a [l+c] link to open both the page\'s link and comments page in new tabs at once.',
+    options: {},
+    isEnabled: function() {
+        return VESConsole.getModulePrefs(this.moduid);
+    },
+    inlude: [
+        'all',
+    ],
+    exclude: [
+        'comments',
+    ],
+    isMatchURL: function() {
+        return VESUtils.isMatchURL(this.moduid);
+    },
+    go: function() {
+        //if ((this.isMatchURL())) {    // force run
+        if ((this.isEnabled()) && (this.isMatchURL())) {
+            this.applyLinks();
+            // will need a watcher for .sitetable for when VoatingNeverEnds loads next page
+        }
+    },
+    applyLinks: function(ele) {
+        ele = ele || document;
+        var entries = e.querySelectorAll('.sitetable .entry');
+        for (var i = 0, len = entries.length; i < len; i++) {
+            if ((typeof entries[i] !== 'undefined') && (!entries[i].classList.contains('lcTagged'))) {
+                entries[i].classList.add('lcTagged');
+                this.titleLA = entries[i].querySelector(A.title);
+                if (this.titleLA !== null) {
+                    var thisLink = this.titleLA.href;
+                    var thisComments = (thisComments = entries[i].querySelector('.comments')) && thisComments.href;
+                    var thisUL = entries[i].querySelector('ul.flat-list');
+                    var singleClickLI = document.createElement('li');
+                    var singleClickLink = document.createElement('span');
+                    if (thisLink != thisComments) {
+                        singleClickLink.textContent = '[l+c]';
+                    }
+                    singleClickLI.appendChild(singleClickLink);
+                    thisUL.appendChild(singleClickLI);
+                    // singleClickLink.addEventListener('click', function(e) {
+                    //     e.preventDefault();
+                    //     // check if it's a relative link (no http://domain) because chrome barfs on these when creating a new tab...
+                    //     var thisLink = this.getAttribute('thisLink')
+                    //     if (typeof(chrome) != 'undefined') {
+                    //         thisJSON = {
+                    //             requestType: 'singleClick',
+                    //             linkURL: thisLink, 
+                    //             openOrder: modules['singleClick'].options.openOrder.value,
+                    //             commentsURL: this.getAttribute('thisComments'),
+                    //             button: event.button
+                    //         }
+                    //         chrome.extension.sendRequest(thisJSON, function(response) {
+                    //             // send message to background.html to open new tabs...
+                    //             return true;
+                    //         });
+                    //     } else if (typeof(safari) != 'undefined') {
+                    //         thisJSON = {
+                    //             requestType: 'singleClick',
+                    //             linkURL: thisLink, 
+                    //             openOrder: modules['singleClick'].options.openOrder.value,
+                    //             commentsURL: this.getAttribute('thisComments'),
+                    //             button: event.button
+                    //         }
+                    //         safari.self.tab.dispatchMessage("singleClick", thisJSON);
+                    //     } else {
+                    //         if (modules['singleClick'].options.openOrder.value == 'commentsfirst') {
+                    //             if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
+                    //                 window.open(this.getAttribute('thisComments'));
+                    //             }
+                    //             window.open(this.getAttribute('thisLink'));
+                    //         } else {
+                    //             window.open(this.getAttribute('thisLink'));
+                    //             if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
+                    //                 window.open(this.getAttribute('thisComments'));
+                    //             }
+                    //         }
+                    //     }
+                    // }, true);
+                }
+            }
+        }
+    },
+};
+
 
 (function(u) {
     // load all the VES modules
