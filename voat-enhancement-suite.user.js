@@ -301,61 +301,33 @@ modules['singleClick'] = {
     },
     applyLinks: function(ele) {
         ele = ele || document;
-        var entries = e.querySelectorAll('.sitetable .entry');
+        var entries = ele.querySelectorAll('.sitetable>.submission .entry'); // beware of .alert-featuredsub!
         for (var i = 0, len = entries.length; i < len; i++) {
             if ((typeof entries[i] !== 'undefined') && (!entries[i].classList.contains('lcTagged'))) {
                 entries[i].classList.add('lcTagged');
-                this.titleLA = entries[i].querySelector(A.title);
+                this.titleLA = entries[i].querySelector('A.title');
                 if (this.titleLA !== null) {
                     var thisLink = this.titleLA.href;
+                    //console.log("thisLink -- " + thisLink);
                     var thisComments = (thisComments = entries[i].querySelector('.comments')) && thisComments.href;
+                    //console.log("thisComments -- " + thisComments);
                     var thisUL = entries[i].querySelector('ul.flat-list');
                     var singleClickLI = document.createElement('li');
                     var singleClickLink = document.createElement('span');
-                    if (thisLink != thisComments) {
-                        singleClickLink.textContent = '[l+c]';
-                    }
+                    singleClickLink.innerHTML = '[l+c]';
                     singleClickLI.appendChild(singleClickLink);
                     thisUL.appendChild(singleClickLI);
-                    // singleClickLink.addEventListener('click', function(e) {
-                    //     e.preventDefault();
-                    //     // check if it's a relative link (no http://domain) because chrome barfs on these when creating a new tab...
-                    //     var thisLink = this.getAttribute('thisLink')
-                    //     if (typeof(chrome) != 'undefined') {
-                    //         thisJSON = {
-                    //             requestType: 'singleClick',
-                    //             linkURL: thisLink, 
-                    //             openOrder: modules['singleClick'].options.openOrder.value,
-                    //             commentsURL: this.getAttribute('thisComments'),
-                    //             button: event.button
-                    //         }
-                    //         chrome.extension.sendRequest(thisJSON, function(response) {
-                    //             // send message to background.html to open new tabs...
-                    //             return true;
-                    //         });
-                    //     } else if (typeof(safari) != 'undefined') {
-                    //         thisJSON = {
-                    //             requestType: 'singleClick',
-                    //             linkURL: thisLink, 
-                    //             openOrder: modules['singleClick'].options.openOrder.value,
-                    //             commentsURL: this.getAttribute('thisComments'),
-                    //             button: event.button
-                    //         }
-                    //         safari.self.tab.dispatchMessage("singleClick", thisJSON);
-                    //     } else {
-                    //         if (modules['singleClick'].options.openOrder.value == 'commentsfirst') {
-                    //             if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
-                    //                 window.open(this.getAttribute('thisComments'));
-                    //             }
-                    //             window.open(this.getAttribute('thisLink'));
-                    //         } else {
-                    //             window.open(this.getAttribute('thisLink'));
-                    //             if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
-                    //                 window.open(this.getAttribute('thisComments'));
-                    //             }
-                    //         }
-                    //     }
-                    // }, true);
+                    singleClickLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // check if it's a relative link (no http://domain) because chrome barfs on these when creating a new tab...
+                        var thisLink = this.getAttribute('thisLink')
+                        // some json crap specific to chrome/safari used to be here...
+                        // some if-else using the future options for the module about which link opens first
+                        window.open(this.getAttribute('thisLink'));
+                        if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
+                            window.open(this.getAttribute('thisComments'));
+                        }
+                    }, true);
                 }
             }
         }
