@@ -22,6 +22,23 @@ Ideas for VES are always welcome! However, before you report a bug or submit a p
 
 <!--[![Code Climate](https://codeclimate.com/github/travis-g/Voat-Enhancement-Suite/badges/gpa.svg)](https://codeclimate.com/github/travis-g/Voat-Enhancement-Suite)-->
 
+## Installation
+
+VES should be compatible across all operating systems and most browsers. Below are instructions for the two browsers VES has been officially tested on.
+
+#### Chrome
+
+1. If you do not have `Tampermonkey` installed:
+	1. Install `Tampermonkey`.
+2. Install VES.
+
+#### Firefox
+
+1. If you do not have `Greasemonkey` installed:
+	1. Install `Greasemonkey`,
+	2. Restart Firefox.
+2. Install VES.
+
 ## [Download][dl]
 
 [dl]: https://github.com/travis-g/Voat-Enhancement-Suite/raw/master/voat-enhancement-suite.user.js
