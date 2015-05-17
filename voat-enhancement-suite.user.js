@@ -407,13 +407,13 @@ var VESUtils = {
             window.open(url);
         }
     },
+    isDarkMode: function() {
+        // check if isDarkMode has been run already
+        if (typeof(this.isDarkModeCached) != 'undefined') return this.isDarkModeCached;
+        this.isDarkModeCached = document.getElementsByTagName('link')[1].href.indexOf('Dark') > -1;
+        return this.isDarkModeCached;
+    },
 };
-
-var singleClickCSS = '.link .flat-list li span { font-weight: bold }';
-var voatingNeverEndsCSS = '';
-
-VESUtils.addCSS(singleClickCSS);
-VESUtils.addCSS(voatingNeverEndsCSS);
 
 var VESConsole = {
     resetModulePrefs: function() {
@@ -421,7 +421,7 @@ var VESConsole = {
         prefs = {
             'debug': true,
             'voatingNeverEnds': true,
-            'singleClick': false,
+            'singleClick': true,
         };
         this.setModulePrefs(prefs);
         return prefs;
@@ -620,6 +620,13 @@ modules['singleClick'] = {
         //if ((this.isMatchURL())) {    // force run
         if ((this.isEnabled()) && (this.isMatchURL())) {
             this.applyLinks();
+            if (VESUtils.isDarkMode()) {
+                VESUtils.addCSS('.VESSingleClick { color: #bcbcbc; font-weight: bold; pointer: cursor; }');
+                VESUtils.addCSS('.VESSingleClick:hover { text-decoration: underline }');
+            } else {
+                VESUtils.addCSS('.VESSingleClick { color: #6a6a6a; font-weight: bold; pointer: cursor; }');
+                VESUtils.addCSS('.VESSingleClick:hover {text-decoration: underline }');
+            }
             // watch for changes to .sitetable, then reapply
             //VESUtils.watchForElement('sitetable', modules['singleClick'].applyLinks);
             document.body.addEventListener('DOMNodeInserted', function(event) {
@@ -647,7 +654,10 @@ modules['singleClick'] = {
                     //console.log("thisComments -- " + thisComments);
                     var thisUL = entries[i].querySelector('ul.flat-list');
                     var singleClickLI = document.createElement('li');
-                    var singleClickLink = document.createElement('span');
+                    var singleClickLink = document.createElement('a');
+                    singleClickLink.setAttribute('class','VESSingleClick');
+                    singleClickLink.setAttribute('thisLink',thisLink);
+                    singleClickLink.setAttribute('thisComments',thisComments);
                     if (thisLink != thisComments) {
                         singleClickLink.innerHTML = '[l+c]';
                     } else if (!(this.options.hideLEC.value)) {
@@ -657,13 +667,22 @@ modules['singleClick'] = {
                     thisUL.appendChild(singleClickLI);
                     singleClickLink.addEventListener('click', function(e) {
                         e.preventDefault();
-                        // check if it's a relative link (no http://domain) because chrome barfs on these when creating a new tab...
-                        var thisLink = this.getAttribute('thisLink');
-                        // some json crap specific to chrome/safari used to be here...
-                        // some if-else using the future options for the module about which link opens first
-                        window.open(this.getAttribute('thisLink'));
-                        if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
-                            window.open(this.getAttribute('thisComments'));
+                        if(e.button != 2) {
+                            // check if it's a relative link (no http://voat.co) because chrome barfs on these when creating a new tab...
+                            var thisLink = this.getAttribute('thisLink');
+                            if (modules['singleClick'].options.openOrder.value == 'commentsfirst') {
+                                if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
+                                    // console.log('open comments');
+                                    window.open(this.getAttribute('thisComments'));
+                                }
+                                window.open(this.getAttribute('thisLink'));
+                            } else { // modules['singleClick'].options.openOrder.value == 'linkfirst'
+                                window.open(this.getAttribute('thisLink'));
+                                if (this.getAttribute('thisLink') != this.getAttribute('thisComments')) {
+                                    // console.log('open comments');
+                                    window.open(this.getAttribute('thisComments'));
+                                }
+                            }
                         }
                     }, true);
                 }
