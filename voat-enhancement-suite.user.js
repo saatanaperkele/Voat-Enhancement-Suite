@@ -38,7 +38,7 @@ function removeClass(e,c) {
     }
 };
 function insertAfter(target, node) {
-    if ((typeof(target) == 'undefined') || (target == null)){
+    if ((typeof(target) == 'undefined') || (target === null)){
         console.log(arguments.callee.caller);
     } else if ((typeof(target.parentNode) != 'undefined') && (typeof(target.nextSibling) != 'undefined')) {
         target.parentNode.insertBefore( node, target.nextSibiling);
@@ -208,6 +208,7 @@ var modules = new Array();
 
 // common utils for modules
 var VESUtils = {
+    // TODO rearrange these utils logically
     css: '',    // CSS for ALL of VES's modules
     addCSS: function(css) {
         this.css += css;
@@ -411,8 +412,8 @@ var VESUtils = {
     },
 };
 
-singleClickCSS('.link .flat-list li span { font-weight: bold }');
-voatingNeverEndsCSS('');
+var singleClickCSS('.link .flat-list li span { font-weight: bold }');
+var voatingNeverEndsCSS('');
 
 VESUtils.addCSS(singleClickCSS);
 VESUtils.addCSS(voatingNeverEndsCSS);
@@ -430,14 +431,14 @@ var VESConsole = {
     },
     getAllModulePrefs: function() {
         //console.log('entering getAllModulePrefs()...')
-        if (localStorage.getItem('VES.modulePrefs') != null) {
+        if (localStorage.getItem('VES.modulePrefs') !== null) {
             var storedPrefs = JSON.parse(localStorage.getItem('VES.modulePrefs'));
         } else {
             //console.log('getAllModulePrefs: resetting stored prefs');
             // first time VES has been run
             storedPrefs = this.resetModulePrefs();
         }
-        if (storedPrefs == null) {
+        if (storedPrefs === null) {
             storedPrefs = {};
         }
         // create a JSON object to return all prefs
@@ -446,7 +447,7 @@ var VESConsole = {
         for (i in modules) {
             if (storedPrefs[i]) {
                 prefs[i] = storedPrefs[i];
-            } else if (storedPrefs[i] == null) {
+            } else if (storedPrefs[i] === null) {
                 // new module! ...or no preferences.
                 prefs[i] = true;
             } else {
@@ -470,7 +471,7 @@ var VESConsole = {
     },
     setModulePrefs: function(prefs) {
         //console.log("setting VES.modulePrefs...")
-        if (prefs != null) {
+        if (prefs !== null) {
             localStorage.setItem('VES.modulePrefs', JSON.stringify(prefs));
             //this.drawModulesPanel(); // create settings panel for modules
             return prefs;
@@ -600,7 +601,7 @@ modules['singleClick'] = {
         },
         hideLEC: {
             type: 'boolean',
-            value: true,
+            value: false,
             description: 'Hide the [l=c] where the link is the same as the comments page'
         }
     },
@@ -674,6 +675,8 @@ modules['singleClick'] = {
 
 
 (function(u) {
+    // while there's no options dialog
+    VESConsole.resetModulePrefs();
     // load all the VES modules
     for (i in modules) {
         moduid = i;
