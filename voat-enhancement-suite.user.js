@@ -426,7 +426,9 @@ var VESConsole = {
         this.setModulePrefs(prefs);
         return prefs;
     },
-    getAllModulePrefs: function() {
+    getAllModulePrefs: function(force) {
+        // don't repeat if it's been done already
+        if ((!force) && (typeof(this.getAllModulePrefsCached) != 'undefined')) return this.getAllModulePrefsCached;
         //console.log('entering getAllModulePrefs()...')
         if (localStorage.getItem('VES.modulePrefs') !== null) {
             var storedPrefs = JSON.parse(localStorage.getItem('VES.modulePrefs'));
@@ -441,7 +443,7 @@ var VESConsole = {
         // create a JSON object to return all prefs
         //console.log('getAllModulePrefs: creating prefs object');
         var prefs = {};
-        for (i in modules) {
+        for (var i in modules) {
             if (storedPrefs[i]) {
                 prefs[i] = storedPrefs[i];
             } else if (storedPrefs[i] === null) {
