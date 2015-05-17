@@ -280,10 +280,10 @@ var VESUtils = {
         var thisOptions = localStorage.getItem('VESOptions.' + moduid);
         //console.log("thisOptions = " + thisOptions);
         var currentTime = new Date();
-        if ((thisOptions) && (thisOptions != 'undefined') && (thisOptions != null)) {
+        if ((thisOptions) && (thisOptions != 'undefined') && (thisOptions !== null)) {
             storedOptions = JSON.parse(thisOptions);
             codeOptions = modules[moduid].options;
-            for (attrname in codeOptions) {
+            for (var attrname in codeOptions) {
                 if (typeof(storedOptions[attrname]) == 'undefined') {
                     storedOptions[attrname] = codeOptions[attrname];
                 }
@@ -656,7 +656,7 @@ modules['singleClick'] = {
                     singleClickLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         // check if it's a relative link (no http://domain) because chrome barfs on these when creating a new tab...
-                        var thisLink = this.getAttribute('thisLink')
+                        var thisLink = this.getAttribute('thisLink');
                         // some json crap specific to chrome/safari used to be here...
                         // some if-else using the future options for the module about which link opens first
                         window.open(this.getAttribute('thisLink'));
