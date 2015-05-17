@@ -22,31 +22,31 @@ var VESversion = 0.01;
 
 // some basic utils
 function hasClass(e,c) {
-    if ((typeof(e) == 'undefined') || (e == null)) {
+    if ((typeof(e) == 'undefined') || (e === null)) {
         console.log(arguments,callee,caller);
         return false;
     }
     return ele.className.match(new RegExp('(\\s|^)'+c+'(\\s|$)'));
-};
+}
 function addClass(e,c) {
     if (!hasClass(e,c)) e.className += " "+c;
-};
+}
 function removeClass(e,c) {
     if (hasClass(e,c)) {
         var r = new RegExp('(\\s|^)'+c+'(\\s|$)');
         e.className = e.className.replace(r,' ');
     }
-};
+}
 function insertAfter(target, node) {
     if ((typeof(target) == 'undefined') || (target === null)){
         console.log(arguments.callee.caller);
     } else if ((typeof(target.parentNode) != 'undefined') && (typeof(target.nextSibling) != 'undefined')) {
         target.parentNode.insertBefore( node, target.nextSibiling);
     }
-};
+}
 function createElement(type, id, classname, textContent) {
     obj = document.createElement(type);
-    if (id!=null) {
+    if (id !== null) {
         obj.setAttribute('id',id);
     }
     if ((typeof classname !== 'undefined') && classname && (classname !== '')) {
@@ -60,14 +60,12 @@ function createElement(type, id, classname, textContent) {
         }
     }
     return obj;
-};
+}
 
 var BrowserDetect = {
     init: function () {
         this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
-        this.version = this.searchVersion(navigator.userAgent)
-            || this.searchVersion(navigator.appVersion)
-            || "an unknown version";
+        this.version = this.searchVersion(navigator.userAgent) || this.searchVersion(navigator.appVersion) || "an unknown version";
         this.OS = this.searchString(this.dataOS) || "an unknown OS";
     },
     searchString: function (data) {
@@ -202,7 +200,7 @@ function injectCSS(css) {
     if (head) {
         head.appendChild(style);
     }
-};
+}
 
 var modules = new Array();
 
@@ -233,7 +231,7 @@ var VESUtils = {
         }
         var module = modules[moduid];
         if (!module) {
-            console.warn("isMatchURL could not find module", moduid)
+            console.warn("isMatchURL could not find module", moduid);
             return false;
         }
 
@@ -334,13 +332,12 @@ var VESUtils = {
     },
     // adds vendor prefixes to CSS snippits.
     cssVendorPrefix: function(css) {
-        return '-webkit-' + css + ';' + '-o-' + css + ';' + '-moz-' + css + ';'
-            + '-ms-' + css + ';' + css + ';';
+        return '-webkit-' + css + ';' + '-o-' + css + ';' + '-moz-' + css + ';' + '-ms-' + css + ';' + css + ';';
     },
     loggedInUser: function(tryingEarly) {
         if (typeof this.loggedInUserCached === 'undefined') {
             var userLink = document.querySelector('#header-account > .logged-in > span.user > a');
-            if ((userLink != null)) {
+            if ((userLink !== null)) {
                 this.loggedInUserCached = userLink.textContent;
                 // does this element exist?
                 //this.loggedInUserHashCached = document.querySelector('[name=uh]').value;
@@ -388,7 +385,7 @@ var VESUtils = {
                 requestType: 'openLinkInNewTab',
                 linkURL: url,
                 button: focus
-            }
+            };
             chrome.runtime.sendMessage(thisJSON, function(response) {
                 return true;
             });
@@ -397,14 +394,14 @@ var VESUtils = {
                 requestType: 'openLinkInNewTab',
                 linkURL: url,
                 button: focus
-            }
+            };
             safari.self.tab.dispatchMessage("openLinkInNewTab", thisJSON);
         } else if (typeof(opera) != 'undefined') {
             thisJSON = {
                 requestType: 'openLinkInNewTab',
                 linkURL: url,
                 button: focus
-            }
+            };
             self.postMessage(thisJSON);
         } else {
             window.open(url);
@@ -412,8 +409,8 @@ var VESUtils = {
     },
 };
 
-var singleClickCSS('.link .flat-list li span { font-weight: bold }');
-var voatingNeverEndsCSS('');
+var singleClickCSS = '.link .flat-list li span { font-weight: bold }';
+var voatingNeverEndsCSS = '';
 
 VESUtils.addCSS(singleClickCSS);
 VESUtils.addCSS(voatingNeverEndsCSS);
@@ -569,7 +566,7 @@ modules['voatingNeverEnds'] = {
     },
     loadNewPage: function() {
         // fromBackButton
-        if (this.isLoading != true) {
+        if (this.isLoading !== true) {
             // change loading indicator
             this.isLoading = true;
             GM_xmlhttpRequest({
