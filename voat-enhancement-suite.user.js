@@ -446,6 +446,7 @@ var VESConsole = {
         //console.log("resetModulePrefs(): resetting module prefs");
         prefs = {
             'debug': true,
+            'hideChildComments': true,
             'voatingNeverEnds': false,
             'singleClick': true,
         };
@@ -548,6 +549,127 @@ modules.debug = {
             console.log('isDarkMode: ' + VESUtils.isDarkMode());
         }
     },
+};
+
+modules.hideChildComments = {
+    moduid: 'hideChildComments',
+    moduleName: 'Hide All Child Comments',
+    description: 'Allows you to hide all child comments for easier reading.',
+    options: {
+        automatic: {
+            type: 'boolean',
+            value: false,
+            description: 'Automatically hide all child comments on page load?'
+        }
+    },
+    include: [
+        'comments'
+    ],
+    isEnabled: function() {
+        return VESConsole.getModulePrefs(this.moduid);
+    },
+    isMatchURL: function() {
+        return VESUtils.isMatchURL(this.moduid);
+    },
+    go: function() {
+        if ((this.isEnabled()) && (this.isMatchURL())) {
+            var toggleButton = document.createElement('li');
+            this.toggleAllLink = document.createElement('a');
+            this.toggleAllLink.textContent = 'hide all child comments';
+            this.toggleAllLink.setAttribute('action', 'hide');
+            this.toggleAllLink.setAttribute('href', '#');
+            this.toggleAllLink.setAttribute('title', 'Show only replies to original poster.');
+            this.toggleAllLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                modules.hideChildComments.toggleComments(this.getAttribute('action'));
+                if (this.getAttribute('action') === 'hide') {
+                    this.setAttribute('action', 'show');
+                    this.setAttribute('title', 'Show all comments.');
+                    this.textContent = 'show all child comments';
+                } else {
+                    this.setAttribute('action', 'hide');
+                    this.setAttribute('title', 'Show only replies to original poster.');
+                    this.textContent = 'hide all child comments';
+                }
+            }, true);
+            toggleButton.appendChild(this.toggleAllLink);
+            var commentMenu = document.querySelector('ul.buttons');
+            if (commentMenu) {
+                // add the post's toggle
+                commentMenu.appendChild(toggleButton);
+                // get the comments of every top-level comment
+                var rootComments = document.querySelectorAll('div.commentarea > div.sitetable > div.thread > div.child');
+                for (var i = 0, len = rootComments.length; i < len; i++) {
+                    toggleButton = document.createElement('li');
+                    var toggleLink = document.createElement('a');
+                    toggleLink.setAttribute('data-text','hide child comments');
+                    toggleLink.setAttribute('action', 'hide');
+                    toggleLink.setAttribute('href', '#');
+                    toggleLink.setAttribute('class', 'toggleChildren noCtrlF');
+                    // toggleLink.setAttribute('title','Hide child comments.');
+                    toggleLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        modules.hideChildComments.toggleComments(this.getAttribute('action'), this);
+                    }, true);
+                    toggleButton.appendChild(toggleLink);
+                    //console.log('toggleButton: ' + typeof(toggleButton));
+                    var comment = rootComments[i].parentNode.querySelector('.entry');
+                    //console.log('comment: ' + typeof(comment));
+                    if (typeof(comment) != 'undefined') {
+                        var sibMenu = comment.querySelector('ul.buttons');
+                        if (sibMenu) sibMenu.appendChild(toggleButton);
+                    }
+                }
+                // TODO 
+                // if (this.options.automatic.value) {
+                //     // ensure we're not in a permalinked post..
+                //     var linkRE = /\/comments\/(?:\w+)\/(?:\w+)\/(\w+)/;
+                //     if (! location.pathname.match(linkRE)) {
+                //         VESUtils.click(this.toggleAllLink);
+                //     }
+                // }
+            }
+        }
+    },
+    toggleComments: function(action, obj) {
+        var commentContainers;
+        if (obj) { // toggle a single comment tree
+            commentContainers = $(obj).closest('.thread');
+            console.log('closing '+commentContainers.length+' comment');
+        } else { // toggle all comments
+            console.log('getting all comments...');
+            commentContainers = document.querySelectorAll('div.commentarea > div.sitetable > div.thread');
+            console.log('closing '+commentContainers.length+' root comments');
+        }
+        for (var i = 0, len = commentContainers.length; i < len; i++) {
+            // console.log('getting child container ' + i);
+            // var thisChildren = commentContainers[i].querySelectorAll('div.child');
+            // console.log('action: ' + action);
+            // var thisToggleLink;
+            // if (action === 'hide') {
+            //     // select the toggleButton VES adds
+            //     thisToggleLink = commentContainers[i].querySelector('a.toggleChildren');
+            //     console.log('thisToggleLink: ' + typeof(thisToggleLink) + thisToggleLink.length);
+            //     if (thisToggleLink !== null) {
+            //         var numChildren = commentContainers[i].querySelectorAll('div.child').length;
+            //         if (thisChildren !== null) {
+            //             thisChildren.style.display = 'none';
+            //         }
+            //         thisToggleLink.setAttribute('data-text','show ' + numChildren + ' child comments');
+            //         thisToggleLink.setAttribute('action', 'show');
+            //     }
+            // } else {
+            //     thisToggleLink = commentContainers[i].querySelector('.collapsed a.expand');
+            //     if (thisToggleLink !== null) {
+            //         if (thisChildren !== null) {
+            //             thisChildren.style.display = 'block';
+            //         }
+            //         thisToggleLink.setAttribute('data-text','hide child comments');
+            //         thisToggleLink.setAttribute('action', 'hide');
+            //     }
+            // }
+        }
+    }
 };
 
 modules.voatingNeverEnds = {
