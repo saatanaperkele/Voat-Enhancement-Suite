@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Voat Enhancement Suite
-// @version     0.01
+// @version     0.02
 // @description Suite of tools to enhance Voat's functionalities
 // @author      travis
 // @include     http://voat.co/*
@@ -17,7 +17,7 @@
 // @icon
 // ==/UserScript==
 
-var VESversion = 0.01;
+var VESversion = 0.02;
 
 
 // some basic utils
@@ -217,7 +217,7 @@ var VESUtils = {
         comments: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/v\/([\w\.\+]+)\/comments\/([\w\.\+]+)/i,
         user: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/user\/([\w\.\+]+)/i,
         //search:
-        //submit: 
+        submit: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/(?:[\-\w\.]+\/)?submit/i,
         subverse: /^https?:\/\/(?:[\-\w\.]+\.)?voat\.co\/v\/([\w\.\+]+)/i,
         //subversePostListing:
     },
@@ -229,9 +229,9 @@ var VESUtils = {
         if (!VESUtils.isVoat()) {
             return false;
         }
-        var module = modules[moduid];
+        var module = modules[moduleID];
         if (!module) {
-            console.warn("isMatchURL could not find module", moduid);
+            console.warn("isMatchURL could not find module", moduleID);
             return false;
         }
 
@@ -262,6 +262,8 @@ var VESUtils = {
                 pageType = 'comments';
             } else if (VESUtils.regexes.subverse.test(currURL)) {
                 pageType = 'subverse';
+            } else if (VESUtils.regexes.submit.test(currURL)) {
+                pageType = 'submit';
             } else {
                 pageType = 'linklist';
             }
@@ -275,28 +277,28 @@ var VESUtils = {
             return (e === 'all') || (e === thisPage);
         });
     },
-    getOptions: function(moduid) {
-        //console.log("getting options for " + moduid);
-        var thisOptions = localStorage.getItem('VESOptions.' + moduid);
+    getOptions: function(moduleID) {
+        //console.log("getting options for " + moduleID);
+        var thisOptions = localStorage.getItem('VESOptions.' + moduleID);
         //console.log("thisOptions = " + thisOptions);
         var currentTime = new Date();
         if ((thisOptions) && (thisOptions != 'undefined') && (thisOptions !== null)) {
             storedOptions = JSON.parse(thisOptions);
-            codeOptions = modules[moduid].options;
+            codeOptions = modules[moduleID].options;
             for (var attrname in codeOptions) {
                 if (typeof(storedOptions[attrname]) == 'undefined') {
                     storedOptions[attrname] = codeOptions[attrname];
                 }
             }
-            modules[moduid].options = storedOptions;
-            localStorage.setItem('VESOptions.' + moduid, JSON.stringify(modules[moduid].options));
+            modules[moduleID].options = storedOptions;
+            localStorage.setItem('VESOptions.' + moduleID, JSON.stringify(modules[moduleID].options));
         } else {
             //console.log('getOptions: setting defaults');
             // nothing's been stored, so set defaults:
-            localStorage.setItem('VESOptions.' + moduid, JSON.stringify(modules[moduid].options));
+            localStorage.setItem('VESOptions.' + moduleID, JSON.stringify(modules[moduleID].options));
         }
-        //console.log('getOptions: returning options for ' + moduid);
-        return modules[moduid].options;
+        //console.log('getOptions: returning options for ' + moduleID);
+        return modules[moduleID].options;
     },
     getURLParams: function() {
         var result = {}, queryString = location.search.substring(1),
@@ -405,34 +407,6 @@ var VESUtils = {
         }
         return true;
     },
-    openLinkInNewTab: function(url, focus) {
-        if (typeof(chrome) != 'undefined') {
-            thisJSON = {
-                requestType: 'openLinkInNewTab',
-                linkURL: url,
-                button: focus
-            };
-            chrome.runtime.sendMessage(thisJSON, function(response) {
-                return true;
-            });
-        } else if (typeof(safari) != 'undefined') {
-            thisJSON = {
-                requestType: 'openLinkInNewTab',
-                linkURL: url,
-                button: focus
-            };
-            safari.self.tab.dispatchMessage("openLinkInNewTab", thisJSON);
-        } else if (typeof(opera) != 'undefined') {
-            thisJSON = {
-                requestType: 'openLinkInNewTab',
-                linkURL: url,
-                button: focus
-            };
-            self.postMessage(thisJSON);
-        } else {
-            window.open(url);
-        }
-    },
     isDarkMode: function() {
         // check if isDarkMode has been run already
         if (typeof(this.isDarkModeCached) != 'undefined') return this.isDarkModeCached;
@@ -446,7 +420,7 @@ var VESConsole = {
         //console.log("resetModulePrefs(): resetting module prefs");
         prefs = {
             'debug': true,
-            'hideChildComments': true,
+            'hideChildComments': false,
             'voatingNeverEnds': false,
             'singleClick': true,
             'searchHelper': true,
@@ -485,13 +459,13 @@ var VESConsole = {
             return prefs;
         }
     },
-    getModulePrefs: function(moduid) {
-        //console.log('entered getModulePrefs for ' + moduid)
-        if (moduid) {
-            //console.log('running getModulePrefs for ' + moduid);
+    getModulePrefs: function(moduleID) {
+        //console.log('entered getModulePrefs for ' + moduleID)
+        if (moduleID) {
+            //console.log('running getModulePrefs for ' + moduleID);
             var prefs = this.getAllModulePrefs();
-            //console.log('getModulePrefs: returning prefs for ' + moduid);
-            return prefs[moduid];
+            //console.log('getModulePrefs: returning prefs for ' + moduleID);
+            return prefs[moduleID];
         } else {
             alert('no module name specified for getModulePrefs');
         }
@@ -521,28 +495,28 @@ IDEAS:
 */
 
 modules.debug = {
-    moduid: 'debug',
+    moduleID: 'debug',
     moduleName: 'VES Debugger',
     description: 'VES analytics for debugging.',
     options: {
 
     },
     isEnabled: function() {
-        //console.log('debug.isEnabled(): ' + VESConsole.getModulePrefs(this.moduid));
-        return VESConsole.getModulePrefs(this.moduid);
+        //console.log('debug.isEnabled(): ' + VESConsole.getModulePrefs(this.moduleID));
+        return VESConsole.getModulePrefs(this.moduleID);
     },
     include: [
         'all'
     ],
     isMatchURL: function() {
-        //console.log('debug.isMatchURL(): ' + VESUtils.isMatchURL(this.moduid));
-        return VESUtils.isMatchURL(this.moduid);
+        //console.log('debug.isMatchURL(): ' + VESUtils.isMatchURL(this.moduleID));
+        return VESUtils.isMatchURL(this.moduleID);
     },
     go: function() {
         //if ((this.isMatchURL())) {  // force run
         if ((this.isEnabled()) && (this.isMatchURL())) {
             // do some basic logging.
-            console.log('done: ' + Date());
+            console.log('VES loaded: ' + Date());
             console.log('isVoat: ' + VESUtils.isVoat());
             console.log('loggedInUser: ' + VESUtils.loggedInUser());
             console.log('pageType: ' + VESUtils.pageType());
@@ -553,7 +527,7 @@ modules.debug = {
 };
 
 modules.hideChildComments = {
-    moduid: 'hideChildComments',
+    moduleID: 'hideChildComments',
     moduleName: 'Hide All Child Comments',
     description: 'Allows you to hide all child comments for easier reading.',
     options: {
@@ -567,10 +541,10 @@ modules.hideChildComments = {
         'comments'
     ],
     isEnabled: function() {
-        return VESConsole.getModulePrefs(this.moduid);
+        return VESConsole.getModulePrefs(this.moduleID);
     },
     isMatchURL: function() {
-        return VESUtils.isMatchURL(this.moduid);
+        return VESUtils.isMatchURL(this.moduleID);
     },
     go: function() {
         if ((this.isEnabled()) && (this.isMatchURL())) {
@@ -674,7 +648,7 @@ modules.hideChildComments = {
 };
 
 modules.voatingNeverEnds = {
-    moduid: 'voatingNeverEnds',
+    moduleID: 'voatingNeverEnds',
     moduleName: 'Voating Never Ends',
     description: 'Load the next page of Voat automatically.',
     options: {
@@ -688,7 +662,7 @@ modules.voatingNeverEnds = {
         }
     },
     isEnabled: function() {
-        return VESConsole.getModulePrefs(this.moduid);
+        return VESConsole.getModulePrefs(this.moduleID);
     },
     include: [
         'all'
@@ -697,7 +671,7 @@ modules.voatingNeverEnds = {
         'comments'
     ],
     isMatchURL: function() {
-        return VESUtils.isMatchURL(this.moduid);
+        return VESUtils.isMatchURL(this.moduleID);
     },
     go: function() {
         if ((this.isEnabled()) && (this.isMatchURL())) {
@@ -921,7 +895,7 @@ modules.voatingNeverEnds = {
                                 var lastTopScrolledID = VESStorage.getItem('VESmodules.voatingNeverEnds.lastVisibleIndex.'+thisPageType);
                                 var lastTopScrolledEle = document.body.querySelector('.'+lastTopScrolledID);
                                 if (!lastTopScrolledEle) {
-                                    var lastTopScrolledEle = newHTML.querySelector('#siteTable div.thing');
+                                   lastTopScrolledEle = newHTML.querySelector('#siteTable div.thing');
                                 }
                                 thisXY=VESUtils.getXYpos(lastTopScrolledEle);
                                 VESUtils.scrollTo(0, thisXY.y);
@@ -957,7 +931,7 @@ modules.voatingNeverEnds = {
 };
 
 modules.singleClick = {
-    moduid: 'singleClick',
+    moduleID: 'singleClick',
     moduleName: 'Single Click',
     description: 'Adds an [l+c] link that opens a link and the comments page in new tabs for you in one click.',
     options: {
@@ -977,7 +951,7 @@ modules.singleClick = {
         }
     },
     isEnabled: function() {
-        return VESConsole.getModulePrefs(this.moduid);
+        return VESConsole.getModulePrefs(this.moduleID);
     },
     inlude: [
         'all',
@@ -986,7 +960,7 @@ modules.singleClick = {
         'comments',
     ],
     isMatchURL: function() {
-        return VESUtils.isMatchURL(this.moduid);
+        return VESUtils.isMatchURL(this.moduleID);
     },
     go: function() {
         //if ((this.isMatchURL())) {    // force run
@@ -1063,7 +1037,7 @@ modules.singleClick = {
     },
 };
 modules.searchHelper = {
-    moduid: 'searchHelper',
+    moduleID: 'searchHelper',
     moduleName: 'Search Helper',
     category: 'Posts',
     options: {
@@ -1096,12 +1070,12 @@ modules.searchHelper = {
     },
     description: 'Provide help with the use of search.',
     isEnabled: function() {
-        return VESConsole.getModulePrefs(this.moduid);
+        return VESConsole.getModulePrefs(this.moduleID);
     },
     // include: [
     // ],
     isMatchURL: function() {
-        // return VESUtils.isMatchURL(this.moduid);
+        // return VESUtils.isMatchURL(this.moduleID);
         return true;
     },
     go: function() {
@@ -1172,9 +1146,9 @@ modules.searchHelper = {
     // while there's no options dialog
     VESConsole.resetModulePrefs();
     // load all the VES modules
-    for (i in modules) {
-        moduid = i;
-        modules[moduid].go();
+    for (var i in modules) {
+        moduleID = i;
+        modules[moduleID].go();
     }
     // inject all VES modules' CSS
     injectCSS(VESUtils.css);
