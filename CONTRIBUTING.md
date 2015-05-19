@@ -31,6 +31,8 @@ To do so, the core must be written carefully to allow this. Streamlining the cod
 
 + As (currently) VES is one file (core and modules) please create a topic branch.
   * Again, avoid changing the master branch!
++ lint `voat-enhancement-suite.user.js` with JSHint.
+  * Fix missing semicolons, comparison operator issues, &c. 
 + Make intelligently separated commits.
 + Test to make sure that no features were broken by the fix.
 
